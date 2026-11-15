@@ -16,7 +16,7 @@ export function GardenLeaderboard({ locale }: { locale: Locale }) {
   useEffect(() => {
     const garden = gardenRef.current;
     if (!garden) return;
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const media = window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 1023px)");
     let currentAngle = 0;
     let lastTime: number | null = null;
     let frame = 0;
