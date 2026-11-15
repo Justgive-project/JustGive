@@ -8,10 +8,11 @@
     "wall": "Wall of kindness",
     "transparency": "Transparency",
     "contact": "Contact",
-    "give": "Make an optional contribution"
+    "give": "Give if you’d like"
   },
+  "heroGive": "Contribute, if you’d like",
   "heroTitle": "A little giving. A little happiness.",
-  "heroText": "JustGive is a personal place to make a voluntary contribution, if giving feels right to you. There is no pressure, expectation, or reward—just a choice that is yours.",
+  "heroText": "Give if it feels right. No pressure, no expectations.",
   "choose": "Choose an amount",
   "chooseAmount": "Choose an amount to continue",
   "formHeading": "What feels right today?",

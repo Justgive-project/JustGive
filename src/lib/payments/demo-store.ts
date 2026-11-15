@@ -1,5 +1,12 @@
 type DemoOrder={amountPaise:number;causePreference:"education"|"healthcare"|"animalWelfare"|"other"|"none"|null;createdAt:number;status:"created"|"pending"|"successful"|"failed";receiptToken:string};
 
+function starPosition(token:string){
+  let hash=2166136261;
+  for(const char of token) hash=Math.imul(hash^char.charCodeAt(0),16777619);
+  const value=hash>>>0;
+  return {x:14+(value%7200)/100,y:14+((value>>>12)%7200)/100};
+}
+
 // Next.js compiles route handlers and pages into separate module instances, so a plain
 // module-level Map is not shared between them. Hang the store on globalThis so every
 // bundle in the same server process reads the same map.
@@ -15,4 +22,4 @@ export function completeDemoOrder(id:string,amountPaise:number,outcome:"success"
   order.status=outcome==="success"?"successful":outcome;return {ok:true as const,status:order.status,receiptToken:outcome==="success"?order.receiptToken:null};
 }
 /** Returns the receipt for a successfully completed demo order. Simulated only. */
-export function readDemoReceipt(id:string){const order=orders.get(id);if(!order||order.status!=="successful")return null;return {amountPaise:order.amountPaise,causePreference:order.causePreference,receiptToken:order.receiptToken};}
+export function readDemoReceipt(id:string){const order=orders.get(id);if(!order||order.status!=="successful")return null;return {amountPaise:order.amountPaise,causePreference:order.causePreference,receiptToken:order.receiptToken,star:starPosition(order.receiptToken)};}

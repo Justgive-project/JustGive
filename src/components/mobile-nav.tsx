@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Heart, Menu } from "lucide-react";
 import { LanguageSwitch } from "./language-switch";
 import type { Locale } from "@/lib/i18n";
 
@@ -42,7 +42,7 @@ export function MobileNav({ locale, nav, giveLabel }: { locale: Locale; nav: Rea
       <nav aria-label={navLabel}>
         {nav}
         <LanguageSwitch locale={locale} />
-        <Link className="button" href={`/${locale}#give`}>{giveLabel}</Link>
+        <Link href={`/${locale}/contribute`} className="button premium-cta"><Heart size={18} aria-hidden="true" />{giveLabel}</Link>
       </nav>
     </details>
   );

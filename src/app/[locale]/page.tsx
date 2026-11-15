@@ -1,15 +1,15 @@
 import Link from "next/link";
-import { ArrowDown, ArrowRight, CheckCircle2, Flower2, HandHeart, Heart, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Flower2, HandHeart, Heart, ShieldCheck, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getMessages, isLocale } from "@/lib/i18n";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ContributionForm } from "@/components/contribution-form";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AnimatedHeart } from "@/components/animated-heart";
 import { GlassCard } from "@/components/glass-surfaces";
-import { KindnessVisuals } from "@/components/kindness-visuals";
 import { MessageAppreciationButton } from "@/components/message-appreciation-button";
+import { WallStarterNotes } from "@/components/wall-starter-notes";
+import { GardenLeaderboard } from "@/components/garden-leaderboard";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -33,10 +33,6 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const { data: wallMessages } = db
     ? await db.from("approved_messages").select("id,body,locale,created_at,appreciation_count,pass_it_on").order("created_at", { ascending: false }).limit(3)
     : { data: null };
-  const { data: summary } = db ? await db.rpc("public_contribution_summary") : { data: null };
-  const verifiedCount = Number(Array.isArray(summary) ? summary[0]?.successful_count ?? 0 : 0);
-  const { data: visualSettings } = db ? await db.from("site_settings").select("key,value").eq("key", "kindness_universe") : { data: null };
-  const visualFlags = new Map((visualSettings ?? []).map(setting => [setting.key, setting.value as { enabled?: boolean }]));
   const { data: dailyMoment } = db ? await db.from("daily_moments").select("title,body").eq("locale", locale).eq("published", true).lte("publish_at", new Date().toISOString()).order("publish_at", { ascending: false }).limit(1).maybeSingle() : { data: null };
 
   return (
@@ -65,26 +61,14 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             </h1>
             <p>{t.heroText}</p>
             <div className="hero-actions">
-              <a className="button hero-cta" href="#give">{t.nav.give}<ArrowRight size={18} aria-hidden="true" /></a>
-              <Link className="hero-secondary-link" href={`/${locale}/how-it-works`}>{t.howLink}<ArrowDown size={15} aria-hidden="true" /></Link>
-            </div>
-            <div className="hero-assurance" aria-label={t.heroAssuranceLabel}>
-              <span><ShieldCheck size={16} aria-hidden="true" />{t.clearTransparent}</span>
-              <span><Heart size={16} aria-hidden="true" />{t.alwaysOptional}</span>
+              <Link className="button premium-cta hero-cta" href={`/${locale}/contribute`}><Heart size={18} aria-hidden="true" />{t.heroGive}</Link>
+              <Link className="hero-secondary-link" href={`/${locale}/how-it-works`}>{t.howLink}</Link>
             </div>
           </div>
           <AnimatedHeart locale={locale} />
         </section>
 
-        <section className="give-section" aria-label={t.choose}>
-          <div className="give-intro">
-            <h2>{t.giveSectionTitle}</h2>
-            <h3>{t.giveIntroTitle}</h3>
-            <p>{t.giveIntroText}</p>
-            <Link className="text-link" href={`/${locale}/payment-disclosure`}>{t.readDisclosure}<ArrowRight size={16} aria-hidden="true" /></Link>
-          </div>
-          <ContributionForm locale={locale} />
-        </section>
+        <GardenLeaderboard locale={locale} />
 
         <section className="content-section why-section" id="why">
           <div className="section-intro"><h2>{t.whyTitle}</h2><p>{t.whyText}</p></div>
@@ -107,11 +91,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <section className="wall-preview">
           <div className="wall-copy"><h2>{t.wallTitle}</h2><p>{t.wallText}</p><Link className="text-link" href={`/${locale}/wall-of-kindness`}>{t.wallLink}<ArrowRight size={16} aria-hidden="true" /></Link></div>
           <div className="wall-preview-messages" aria-label={t.wallTitle}>
-            {wallMessages?.length ? wallMessages.map((message) => <figure className="wall-message-card" key={message.id}><Flower2 size={21} aria-hidden="true" /><blockquote>{message.body}</blockquote>{message.pass_it_on && <p className="pass-it-on"><Sparkles size={14} aria-hidden="true" />{message.pass_it_on}</p>}<figcaption>{new Date(message.created_at).toLocaleDateString(locale === "en" ? "en-IN" : "hi-IN")}<MessageAppreciationButton id={message.id} count={message.appreciation_count} locale={locale}/></figcaption></figure>) : <div className="quote-card"><Flower2 size={27} className="wall-mark" aria-hidden="true" /><p>{t.emptyWall}</p><span className="quote-by">{t.wallName}</span></div>}
+            {wallMessages?.length ? wallMessages.map((message) => <figure className="wall-message-card" key={message.id}><Flower2 size={21} aria-hidden="true" /><blockquote>{message.body}</blockquote>{message.pass_it_on && <p className="pass-it-on"><Sparkles size={14} aria-hidden="true" />{message.pass_it_on}</p>}<figcaption>{new Date(message.created_at).toLocaleDateString(locale === "en" ? "en-IN" : "hi-IN")}<MessageAppreciationButton id={message.id} count={message.appreciation_count} locale={locale}/></figcaption></figure>) : <WallStarterNotes locale={locale} />}
           </div>
         </section>
 
-        {visualFlags.get("kindness_universe")?.enabled !== false && <KindnessVisuals count={verifiedCount} locale={locale} />}
         {dailyMoment && <section className="daily-moment glass-panel" aria-labelledby="daily-moment-title"><span className="eyebrow">{t.dailyMomentEyebrow}</span><h2 id="daily-moment-title">{dailyMoment.title}</h2><p>{dailyMoment.body}</p></section>}
 
         <section className="faq-section">

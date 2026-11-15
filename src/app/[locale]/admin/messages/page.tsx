@@ -16,7 +16,7 @@ export default async function AdminMessages({ params }: { params: Promise<{ loca
   const { data: messages, error: messagesError } = await db.rpc("admin_list_messages");
   return <><SiteHeader locale={locale}/><main className="admin-shell"><span className="eyebrow">Private workspace</span><h1>Message moderation</h1><p className="page-note">Text cues are advisory only. Five unique reports temporarily hide a published message; review it here before restoring.</p>
     {messagesError && <p className="form-error" role="alert">Messages could not be loaded.</p>}
-    {!messagesError && messages?.length ? messages.map(message => {
+    {!messagesError && messages?.length ? messages.map((message: { id: string; body: string; status: string; public_consent: boolean; report_count: number; created_at: string }) => {
       const flags = messageRiskFlags(message.body);
       const action = (name: string, label: string, buttonClass: string) => <form action={`/api/admin/messages?locale=${locale}`} method="post" key={name}><input type="hidden" name="id" value={message.id}/><input type="hidden" name="action" value={name}/><button className={buttonClass}>{label}</button></form>;
       return <article className="admin-card" key={message.id}><p>{message.body}</p><p>Status: {message.status} · Consent: {message.public_consent ? "yes" : "no"} · Reports: {message.report_count} · {new Date(message.created_at).toLocaleString()}</p>

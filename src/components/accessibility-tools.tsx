@@ -1,7 +1,8 @@
 "use client";
 import type { Locale } from "@/lib/i18n";
 import { useEffect, useRef, useState } from "react";
-import { Accessibility, Volume2, VolumeX } from "lucide-react";
+import Link from "next/link";
+import { Accessibility, Heart, Volume2, VolumeX } from "lucide-react";
 import { inlineCopy } from "@/lib/inline-copy";
 
 export function AccessibilityTools({ locale }: { locale: Locale }) {
@@ -9,23 +10,25 @@ export function AccessibilityTools({ locale }: { locale: Locale }) {
   const [highContrast, setHighContrast] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [audioOn, setAudioOn] = useState(false);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const audio = useRef<AudioContext | null>(null);
   const nodes = useRef<OscillatorNode[]>([]);
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      try {
-        const prefs = JSON.parse(localStorage.getItem("justgive-a11y") ?? "{}") as { largeText?: boolean; highContrast?: boolean; reducedMotion?: boolean };
-        setLargeText(!!prefs.largeText); setHighContrast(!!prefs.highContrast); setReducedMotion(!!prefs.reducedMotion);
-      } catch { /* Ignore invalid local preference data. */ }
-    }, 0);
-    return () => window.clearTimeout(timer);
+    try {
+      const prefs = JSON.parse(localStorage.getItem("justgive-a11y") ?? "{}") as { largeText?: boolean; highContrast?: boolean; reducedMotion?: boolean };
+      // Restore browser preferences after SSR before input can race the stored state.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLargeText(!!prefs.largeText); setHighContrast(!!prefs.highContrast); setReducedMotion(!!prefs.reducedMotion);
+    } catch { /* Ignore invalid local preference data. */ }
+    setPreferencesLoaded(true);
   }, []);
   useEffect(() => {
+    if (!preferencesLoaded) return;
     document.documentElement.classList.toggle("a11y-large-text", largeText);
     document.documentElement.classList.toggle("a11y-high-contrast", highContrast);
     document.documentElement.classList.toggle("a11y-reduced-motion", reducedMotion);
     try { localStorage.setItem("justgive-a11y", JSON.stringify({ largeText, highContrast, reducedMotion })); } catch { /* Preferences still apply for this page view. */ }
-  }, [largeText, highContrast, reducedMotion]);
+  }, [largeText, highContrast, reducedMotion, preferencesLoaded]);
   useEffect(() => () => { nodes.current.forEach(node => node.stop()); void audio.current?.close(); }, []);
   async function toggleAudio() {
     if (audioOn) { nodes.current.forEach(node => node.stop()); nodes.current = []; await audio.current?.close(); audio.current = null; setAudioOn(false); return; }
@@ -38,13 +41,18 @@ export function AccessibilityTools({ locale }: { locale: Locale }) {
     } catch { audio.current = null; nodes.current = []; }
   }
   return <div className="accessibility-tools">
-    <details className="accessibility-panel"><summary aria-label={inlineCopy(locale, "सुलभता विकल्प", "Accessibility options")}><Accessibility size={19}/><span>{inlineCopy(locale, "सुलभता", "Access")}</span></summary><div className="accessibility-options">
-      <label><input type="checkbox" checked={largeText} onChange={event => setLargeText(event.target.checked)}/>{inlineCopy(locale, "बड़ा पाठ", "Larger text")}</label>
-      <label><input type="checkbox" checked={highContrast} onChange={event => setHighContrast(event.target.checked)}/>{inlineCopy(locale, "अधिक कंट्रास्ट", "Higher contrast")}</label>
-      <label><input type="checkbox" checked={reducedMotion} onChange={event => setReducedMotion(event.target.checked)}/>{inlineCopy(locale, "कम गति", "Reduce motion")}</label>
-    </div></details>
-    <button className="ambient-audio-button" type="button" onClick={() => void toggleAudio()} aria-pressed={audioOn} aria-label={audioOn ? (inlineCopy(locale, "शांत पृष्ठभूमि ध्वनि बंद करें", "Turn off gentle ambient sound")) : (inlineCopy(locale, "शांत पृष्ठभूमि ध्वनि चालू करें", "Turn on gentle ambient sound"))}>
-      {audioOn ? <Volume2 size={18}/> : <VolumeX size={18}/>}<span>{audioOn ? (inlineCopy(locale, "ध्वनि चालू", "Sound on")) : (inlineCopy(locale, "शांत ध्वनि", "Ambient sound"))}</span>
-    </button>
+    <div className="floating-action-row">
+      <div className="floating-icon-cluster">
+        <details className="accessibility-panel"><summary aria-label={inlineCopy(locale, "सुलभता विकल्प", "Accessibility options")}><Accessibility size={19}/></summary><div className="accessibility-options">
+          <label><input type="checkbox" checked={largeText} onChange={event => setLargeText(event.target.checked)}/>{inlineCopy(locale, "बड़ा पाठ", "Larger text")}</label>
+          <label><input type="checkbox" checked={highContrast} onChange={event => setHighContrast(event.target.checked)}/>{inlineCopy(locale, "अधिक कंट्रास्ट", "Higher contrast")}</label>
+          <label><input type="checkbox" checked={reducedMotion} onChange={event => setReducedMotion(event.target.checked)}/>{inlineCopy(locale, "कम गति", "Reduce motion")}</label>
+        </div></details>
+        <button className="ambient-audio-button" type="button" onClick={() => void toggleAudio()} aria-pressed={audioOn} aria-label={audioOn ? (inlineCopy(locale, "शांत पृष्ठभूमि ध्वनि बंद करें", "Turn off gentle ambient sound")) : (inlineCopy(locale, "शांत पृष्ठभूमि ध्वनि चालू करें", "Turn on gentle ambient sound"))}>
+          {audioOn ? <Volume2 size={18}/> : <VolumeX size={18}/>}
+        </button>
+      </div>
+      <Link href={`/${locale}/contribute`} className="mobile-contribute button premium-cta" aria-label={inlineCopy(locale, "चाहें तो योगदान दें", "Contribute, if you’d like")}><Heart size={17} aria-hidden="true"/><span>{inlineCopy(locale, "चाहें तो योगदान दें", "Contribute, if you’d like")}</span></Link>
+    </div>
   </div>;
 }

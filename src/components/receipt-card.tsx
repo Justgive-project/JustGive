@@ -102,18 +102,18 @@ export function ReceiptCard({ amountPaise, causePreference, locale, shareUrl }: 
 function buildSvg(amountPaise: number, band: string, cause: string | null, locale: Locale) {
   const hi = locale !== "en";
   const amount = (amountPaise / 100).toLocaleString(hi ? "hi-IN" : "en-IN");
-  const causeLine = cause ? `<text x="60" y="318" font-family="Inter, sans-serif" font-size="16" fill="#53676A">${escapeXml(cause)}</text>` : "";
+  const causeLine = cause ? `<text x="60" y="318" font-family="Inter, sans-serif" font-size="16" fill="#3F5F63">${escapeXml(cause)}</text>` : "";
   return `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420">
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF5E8"/><stop offset="0.55" stop-color="#E7F8F1"/><stop offset="1" stop-color="#FFE1D8"/></linearGradient></defs>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF6EE"/><stop offset="0.55" stop-color="#F1FAF6"/><stop offset="1" stop-color="#FFE5DA"/></linearGradient></defs>
   <rect width="720" height="420" rx="34" fill="url(#bg)"/>
   <rect x="40" y="40" width="640" height="340" rx="24" fill="#FFFFFF" fill-opacity="0.82" stroke="#FFFFFF"/>
-  <text x="60" y="92" font-family="Inter, sans-serif" font-weight="800" font-size="25" fill="#173C42">JustGive</text>
-  <rect x="520" y="70" width="140" height="34" rx="17" fill="#FFF0EB" stroke="#F1C4B7"/>
-  <text x="590" y="92" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#B84F49">${inlineCopy(locale, "सिम्युलेटेड", "SIMULATED")}</text>
-  <text x="60" y="168" font-family="Georgia, serif" font-size="34" fill="#087F8C">${escapeXml(band)}</text>
-  <line x1="60" y1="196" x2="660" y2="196" stroke="#CFE7DF" stroke-dasharray="4 6"/>
-  <text x="60" y="268" font-family="Inter, sans-serif" font-weight="800" font-size="54" fill="#173C42">₹${escapeXml(amount)}</text>
+  <text x="60" y="92" font-family="Inter, sans-serif" font-weight="800" font-size="25" fill="#123B40">JustGive</text>
+  <rect x="520" y="70" width="140" height="34" rx="17" fill="#FFF6EE" stroke="#CFE8E2"/>
+  <text x="590" y="92" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#A84F46">${inlineCopy(locale, "सिम्युलेटेड", "SIMULATED")}</text>
+  <text x="60" y="168" font-family="Georgia, serif" font-size="34" fill="#0E6D78">${escapeXml(band)}</text>
+  <line x1="60" y1="196" x2="660" y2="196" stroke="#CFE8E2" stroke-dasharray="4 6"/>
+  <text x="60" y="268" font-family="Inter, sans-serif" font-weight="800" font-size="54" fill="#123B40">₹${escapeXml(amount)}</text>
   ${causeLine}
-  <text x="60" y="356" font-family="Inter, sans-serif" font-size="13" fill="#718487">${inlineCopy(locale, "स्वैच्छिक · व्यक्तिगत · बिना इनाम", "Voluntary · personal · no rewards")}</text>
+  <text x="60" y="356" font-family="Inter, sans-serif" font-size="13" fill="#3F5F63">${inlineCopy(locale, "स्वैच्छिक · व्यक्तिगत · बिना इनाम", "Voluntary · personal · no rewards")}</text>
 </svg>`;
 }

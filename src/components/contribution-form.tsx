@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { ArrowUpRight, Check, Heart, Send, Sparkles, BookOpen, Stethoscope, PawPrint, HandHeart, CircleOff, HeartHandshake, ChevronDown, X } from "lucide-react";
 import { getMessages, type Locale } from "@/lib/i18n";
 import { GlassButton, GlassInput, GlassPanel } from "@/components/glass-surfaces";
+import { ContributorProfileModal, type EditableContributor } from "@/components/contributor-profile-modal";
+import { inlineCopy } from "@/lib/inline-copy";
 
 const presets = [1, 5, 10, 21, 51, 101];
 const causes = ["education", "healthcare", "animalWelfare", "other", "none"] as const;
@@ -12,6 +14,7 @@ const causeIcons = { education: BookOpen, healthcare: Stethoscope, animalWelfare
 
 export function ContributionForm({ locale }: { locale: Locale }) {
   const t = getMessages(locale);
+  const text = (en: string, hi: string) => inlineCopy(locale, hi, en);
   const [amount, setAmount] = useState<number | null>(null);
   const [raw, setRaw] = useState("");
   const [error, setError] = useState("");
@@ -23,10 +26,27 @@ export function ContributionForm({ locale }: { locale: Locale }) {
   const [noteState, setNoteState] = useState<"idle" | "sent" | "error">("idle");
   const [cause, setCause] = useState<(typeof causes)[number] | null>(null);
   const [causeOpen, setCauseOpen] = useState(false);
+  const [leaderboardChoice, setLeaderboardChoice] = useState<"yes" | "no" | null>(null);
+  const [profile, setProfile] = useState<EditableContributor | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileError, setProfileError] = useState("");
   const causeDialog = useRef<HTMLDialogElement>(null);
   const causeTrigger = useRef<HTMLButtonElement>(null);
   const router = useRouter();
   const selectedAmount = raw ? Number(raw) : amount;
+
+  useEffect(() => { if (typeof fetch === "undefined") return; void Promise.resolve(fetch("/api/contributors/profile")).then(response => response?.json?.()).then(result => { if (result?.profile) { setProfile(result.profile); setLeaderboardChoice(result.profile.consent ? "yes" : "no"); } }).catch(() => undefined); }, []);
+
+  async function choosePrivate() {
+    setProfileError("");
+    if (!profile) { setLeaderboardChoice("no"); return; }
+    const data = new FormData(); data.set("displayName", profile.displayName); data.set("biography", profile.biography); data.set("consent", "false");
+    try {
+      const response = await fetch("/api/contributors/profile", { method: "PATCH", body: data });
+      if (!response.ok) throw new Error("We couldn’t update your privacy choice. Please try again.");
+      setProfile({ ...profile, consent: false }); setLeaderboardChoice("no");
+    } catch (cause) { setProfileError(cause instanceof Error ? cause.message : "We couldn’t update your privacy choice. Please try again."); }
+  }
 
   useEffect(() => {
     const dialog = causeDialog.current;
@@ -104,7 +124,7 @@ export function ContributionForm({ locale }: { locale: Locale }) {
   }
 
   return (
-    <GlassPanel className="give-card" id="give" aria-labelledby="give-title">
+    <GlassPanel className="give-card" aria-labelledby="give-title">
       <div className="give-card-header">
         <div className="give-heading">
           <h2 id="give-title">{t.formHeading}</h2>
@@ -130,6 +150,17 @@ export function ContributionForm({ locale }: { locale: Locale }) {
           <Sparkles className="visual-sparkle" size={15} />
         </div>
       </div>
+
+      <section className="leaderboard-consent" aria-labelledby="leaderboard-consent-title">
+        <div><h3 id="leaderboard-consent-title">{text("Join the Garden of Kindness leaderboard?", "दयालुता के बगीचे के लीडरबोर्ड में शामिल हों?")}</h3><p>{text("Share your kindness and inspire others.", "अपनी दयालुता साझा करें और दूसरों को प्रेरित करें।")}</p></div>
+        <div className="leaderboard-choice" role="group" aria-label="Public leaderboard choice">
+          <button type="button" aria-pressed={leaderboardChoice === "yes"} onClick={() => { setLeaderboardChoice("yes"); setProfileOpen(true); }}>{text("Yes, show me", "हाँ, मुझे दिखाएँ")}</button>
+          <button type="button" aria-pressed={leaderboardChoice === "no"} onClick={choosePrivate}>{text("No, stay private", "नहीं, निजी रखें")}</button>
+        </div>
+        {profile && <button type="button" className="profile-edit-link" onClick={() => setProfileOpen(true)}>{text("Edit my profile", "मेरी प्रोफ़ाइल संपादित करें")}</button>}
+        {profileError && <p role="alert" className="form-error">{profileError}</p>}
+      </section>
+      {profileOpen && <ContributorProfileModal mode="edit" profile={profile} locale={locale} onClose={() => setProfileOpen(false)} onSaved={value => { setProfile(value); setLeaderboardChoice(value.consent ? "yes" : "no"); }} />}
 
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {t.selectedAmount.replace("{amount}", selectedAmount === null ? t.amountNotSelected : `₹${selectedAmount}`)}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, CircleHelp, Receipt, ShieldCheck, Wallet } from "lucide-react";
+import { ArrowRight, BookOpenCheck, CircleHelp, Heart, Receipt, ShieldCheck, Wallet } from "lucide-react";
 import { getMessages, type Locale } from "@/lib/i18n";
 import { inlineCopy } from "@/lib/inline-copy";
 
@@ -79,7 +79,7 @@ export function TrustCenter({ locale, summary }: { locale: Locale; summary: Summ
         </ul>
       </section>
 
-      <p className="trust-back"><Link className="text-link" href={`/${locale}#give`}>{inlineCopy(locale, "योगदान करें", "Make an optional contribution")}<ArrowRight size={15} aria-hidden="true" /></Link></p>
+      <p className="trust-back"><Link href={`/${locale}/contribute`} className="button premium-cta"><Heart size={18} aria-hidden="true" />{inlineCopy(locale, "चाहें तो योगदान दें", "Contribute, if you’d like")}<ArrowRight size={18} aria-hidden="true" /></Link></p>
     </div>
   );
 }

@@ -13,6 +13,7 @@ const knownPages = new Set([
   "terms",
   "refund-policy",
   "payment-disclosure",
+  "contribute",
   "checkout",
   "payment-status",
   "receipt",
@@ -20,7 +21,7 @@ const knownPages = new Set([
 ]);
 
 function notFoundPage(locale: Locale) {
-  return `<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${inlineCopy(locale, "पेज नहीं मिला", "Page not found")} — JustGive</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#FFF5E8;color:#173C42;font:16px/1.6 system-ui,sans-serif}main{max-width:34rem;padding:2rem;text-align:center}h1{font-size:2rem;margin:0 0 .5rem}a{display:inline-block;margin-top:1rem;padding:.8rem 1.2rem;border-radius:999px;background:#087F8C;color:#fff;text-decoration:none;font-weight:650}</style><main><h1>${inlineCopy(locale, "पेज नहीं मिला", "Page not found")}</h1><p>${inlineCopy(locale, "आप जो पेज खोज रहे हैं वह यहाँ नहीं है।", "We couldn’t find that page.")}</p><a href="/${locale}">${inlineCopy(locale, "होम पर लौटें", "Return home")}</a></main></html>`;
+  return `<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${inlineCopy(locale, "पेज नहीं मिला", "Page not found")} — JustGive</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#FFF6EE;color:#123B40;font:16px/1.6 system-ui,sans-serif}main{max-width:34rem;padding:2rem;text-align:center}h1{font-size:2rem;margin:0 0 .5rem}a{display:inline-block;margin-top:1rem;padding:.8rem 1.2rem;border-radius:999px;background:#0E6D78;color:#fff;text-decoration:none;font-weight:650}</style><main><h1>${inlineCopy(locale, "पेज नहीं मिला", "Page not found")}</h1><p>${inlineCopy(locale, "आप जो पेज खोज रहे हैं वह यहाँ नहीं है।", "We couldn’t find that page.")}</p><a href="/${locale}">${inlineCopy(locale, "होम पर लौटें", "Return home")}</a></main></html>`;
 }
 
 export async function proxy(request: NextRequest) {

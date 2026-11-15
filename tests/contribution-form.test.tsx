@@ -142,7 +142,7 @@ describe("contribution form", () => {
     fireEvent.change(screen.getByLabelText("Or enter another amount"), { target: { value: "1.5" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue with ₹1.5" }));
     expect(screen.getByRole("alert")).toHaveTextContent("Enter a whole rupee amount");
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/payments/create", expect.anything());
   });
 
   it("submits an optional anonymous note separately with explicit consent", async () => {
