@@ -15,7 +15,6 @@ const causeIcons = { education: BookOpen, healthcare: Stethoscope, animalWelfare
 export function ContributionForm({ locale }: { locale: Locale }) {
   const t = getMessages(locale);
   const text = (en: string, hi: string) => inlineCopy(locale, hi, en);
-  const [amount, setAmount] = useState<number | null>(null);
   const [raw, setRaw] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -33,7 +32,7 @@ export function ContributionForm({ locale }: { locale: Locale }) {
   const causeDialog = useRef<HTMLDialogElement>(null);
   const causeTrigger = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-  const selectedAmount = raw ? Number(raw) : amount;
+  const selectedAmount = raw === "" ? null : Number(raw);
 
   useEffect(() => { if (typeof fetch === "undefined") return; void Promise.resolve(fetch("/api/contributors/profile")).then(response => response?.json?.()).then(result => { if (result?.profile) { setProfile(result.profile); setLeaderboardChoice(result.profile.consent ? "yes" : "no"); } }).catch(() => undefined); }, []);
 
@@ -61,8 +60,7 @@ export function ContributionForm({ locale }: { locale: Locale }) {
   }, [causeOpen]);
 
   function changeAmount(value: number) {
-    setAmount(value);
-    setRaw("");
+    setRaw(String(value));
     setError("");
     setVisualPulse((pulse) => pulse + 1);
     window.dispatchEvent(new Event("justgive:amount-change"));
@@ -76,13 +74,12 @@ export function ContributionForm({ locale }: { locale: Locale }) {
   }
 
   async function submitContribution() {
-    const value = raw ? Number(raw) : amount;
+    const value = selectedAmount;
     if (value === null || !Number.isInteger(value) || value < 1 || value > 100000) {
       setError(t.amountInvalid);
       return;
     }
 
-    setAmount(value);
     setBusy(true);
     setError("");
     try {
@@ -154,11 +151,11 @@ export function ContributionForm({ locale }: { locale: Locale }) {
 
       <section className="leaderboard-consent" aria-labelledby="leaderboard-consent-title">
         <div><h3 id="leaderboard-consent-title">{text("Join the Garden of Kindness leaderboard?", "दयालुता के बगीचे के लीडरबोर्ड में शामिल हों?")}</h3><p>{text("Share your kindness and inspire others.", "अपनी दयालुता साझा करें और दूसरों को प्रेरित करें।")}</p></div>
-        <div className="leaderboard-choice" role="group" aria-label="Public leaderboard choice">
+        <div className={`leaderboard-choice${profile ? " has-profile" : ""}`} role="group" aria-label="Public leaderboard choice">
           <button type="button" aria-pressed={leaderboardChoice === "yes"} onClick={() => { setLeaderboardChoice("yes"); setProfileOpen(true); }}>{text("Yes, show me", "हाँ, मुझे दिखाएँ")}</button>
           <button type="button" aria-pressed={leaderboardChoice === "no"} onClick={choosePrivate}>{text("No, stay private", "नहीं, निजी रखें")}</button>
+          {profile && <button type="button" className="profile-edit-link" onClick={() => setProfileOpen(true)}>{text("Edit my profile", "मेरी प्रोफ़ाइल संपादित करें")}</button>}
         </div>
-        {profile && <button type="button" className="profile-edit-link" onClick={() => setProfileOpen(true)}>{text("Edit my profile", "मेरी प्रोफ़ाइल संपादित करें")}</button>}
         {profileError && <p role="alert" className="form-error">{profileError}</p>}
       </section>
       {profileOpen && <ContributorProfileModal mode="edit" profile={profile} locale={locale} onClose={() => setProfileOpen(false)} onSaved={value => { setProfile(value); setLeaderboardChoice(value.consent ? "yes" : "no"); }} />}
@@ -171,12 +168,12 @@ export function ContributionForm({ locale }: { locale: Locale }) {
           <button
             type="button"
             key={value}
-            className={`amount-button ${!raw && amount === value ? "selected" : ""}`}
-            aria-pressed={!raw && amount === value}
+            className={`amount-button ${selectedAmount === value ? "selected" : ""}`}
+            aria-pressed={selectedAmount === value}
             onClick={() => changeAmount(value)}
           >
             <span>₹{value}</span>
-            {!raw && amount === value && <Check size={14} aria-hidden="true" />}
+            {selectedAmount === value && <Check size={14} aria-hidden="true" />}
           </button>
         ))}
       </div>

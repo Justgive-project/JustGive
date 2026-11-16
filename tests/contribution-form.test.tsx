@@ -55,6 +55,8 @@ describe("contribution form", () => {
     const amount = screen.getByRole("button", { name: "₹51" });
     fireEvent.click(amount);
     expect(amount).toHaveAttribute("aria-pressed", "true");
+    expect(amount).toHaveClass("selected");
+    expect(screen.getByLabelText("Or enter another amount")).toHaveValue(51);
     fireEvent.click(screen.getByRole("button", { name: "Continue with ₹51" }));
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/en/checkout?order=demo_order&amount=51"));
