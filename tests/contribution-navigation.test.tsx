@@ -9,8 +9,7 @@ describe("contribution navigation", () => {
   it("sends the desktop and mobile navbar CTAs to the localized contribution page", () => {
     render(<GlassNavigation locale="en" />);
 
-    const contributionLinks = screen.getAllByRole("link", { name: /Make an optional contribution/ });
-    expect(contributionLinks.length).toBeGreaterThanOrEqual(2);
-    expect(contributionLinks.every((link) => link.getAttribute("href") === "/en/contribute")).toBe(true);
+    const contributionLinks = screen.getAllByRole("link").filter((link) => link.getAttribute("href") === "/en/contribute");
+    expect(contributionLinks).toHaveLength(2);
   });
 });

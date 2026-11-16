@@ -16,7 +16,7 @@ export function GardenLeaderboard({ locale }: { locale: Locale }) {
   useEffect(() => {
     const garden = gardenRef.current;
     if (!garden) return;
-    const media = window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 1023px)");
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     let currentAngle = 0;
     let lastTime: number | null = null;
     let frame = 0;
@@ -35,7 +35,8 @@ export function GardenLeaderboard({ locale }: { locale: Locale }) {
         avatar.style.transform = `translate(${x}px, ${y}px)`;
       });
     };
-    const shouldRun = () => !media.matches && !document.hidden && isVisible && !isHovered && !hasFocus;
+    const motionIsReduced = () => media.matches || document.documentElement.classList.contains("a11y-reduced-motion");
+    const shouldRun = () => !motionIsReduced() && !document.hidden && isVisible && !isHovered && !hasFocus;
     const stop = () => {
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
@@ -60,7 +61,7 @@ export function GardenLeaderboard({ locale }: { locale: Locale }) {
     };
     const onVisibilityChange = () => document.hidden ? stop() : start();
     const onMotionChange = () => {
-      if (media.matches) { stop(); currentAngle = 0; positionAvatars(0); }
+      if (motionIsReduced()) { stop(); currentAngle = 0; positionAvatars(0); }
       else start();
     };
     positionAvatars(0);
@@ -71,6 +72,8 @@ export function GardenLeaderboard({ locale }: { locale: Locale }) {
     observer.observe(garden);
     const resizeObserver = new ResizeObserver(() => positionAvatars(currentAngle));
     resizeObserver.observe(garden);
+    const preferenceObserver = new MutationObserver(onMotionChange);
+    preferenceObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
     garden.addEventListener("pointerenter", onPointerEnter);
     garden.addEventListener("pointerleave", onPointerLeave);
     garden.addEventListener("focusin", onFocusIn);
@@ -82,6 +85,7 @@ export function GardenLeaderboard({ locale }: { locale: Locale }) {
       stop();
       observer.disconnect();
       resizeObserver.disconnect();
+      preferenceObserver.disconnect();
       garden.removeEventListener("pointerenter", onPointerEnter);
       garden.removeEventListener("pointerleave", onPointerLeave);
       garden.removeEventListener("focusin", onFocusIn);

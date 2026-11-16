@@ -134,8 +134,9 @@ export function ContributionForm({ locale }: { locale: Locale }) {
           <svg viewBox="0 0 88 88" role="presentation">
             <defs>
               <linearGradient id="joy-heart" x1="14" y1="10" x2="73" y2="78" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#FFE1D8" />
-                <stop offset="1" stopColor="#FF8B78" />
+                <stop stopColor="#F6BCBA" />
+                <stop offset=".55" stopColor="#E3AADD" />
+                <stop offset="1" stopColor="#C3C7F4" />
               </linearGradient>
             </defs>
             <path className="joy-heart-shadow" d="M44 76C37 68 12 51 12 31c0-11 8-19 19-19 6 0 11 3 14 9 3-6 8-9 14-9 11 0 19 8 19 19 0 20-25 37-34 45Z" />

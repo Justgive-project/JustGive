@@ -8,12 +8,16 @@ import { inlineCopy } from "@/lib/inline-copy";
 const celebrationKey = "justgive:contribution-confirmed";
 
 export function OrbitRing({ className, radius, duration }: { className: string; radius: number; duration: string }) {
+  const starX = 310 + radius;
+  const starY = 215;
   return (
     <g className={`heart-orbit ${className}`} style={{ "--orbit-duration": duration } as CSSProperties}>
-      <circle className="heart-orbit-line" cx="260" cy="230" r={radius} />
-      <circle className="heart-orbit-particle particle-primary" cx="260" cy={230 - radius} r="4" />
-      <circle className="heart-orbit-particle particle-secondary" cx={260 + radius} cy="230" r="2.5" />
-      <circle className="heart-orbit-particle particle-tertiary" cx="260" cy={230 + radius} r="3" />
+      <circle className="heart-orbit-line" cx="310" cy="215" r={radius} />
+      <circle className="heart-orbit-highlight" cx="310" cy="215" r={radius} pathLength="100" />
+      <circle className="heart-orbit-particle particle-primary" cx="310" cy={215 - radius} r="4" />
+      <circle className="heart-orbit-particle particle-secondary" cx={310 + radius} cy="215" r="2.5" />
+      <circle className="heart-orbit-particle particle-tertiary" cx="310" cy={215 + radius} r="3" />
+      <path className="heart-orbit-star" d={`M${starX} ${starY - 6} L${starX + 1.5} ${starY - 1.5} L${starX + 6} ${starY} L${starX + 1.5} ${starY + 1.5} L${starX} ${starY + 6} L${starX - 1.5} ${starY + 1.5} L${starX - 6} ${starY} L${starX - 1.5} ${starY - 1.5} Z`} />
     </g>
   );
 }
@@ -87,22 +91,23 @@ export function AnimatedHeart({ locale }: { locale: Locale }) {
 
   return (
     <div className={`hero-art${celebrating ? " is-celebrating" : ""}`}>
-      <div className="heart-mobile-glow" aria-hidden="true" />
-      <svg
-        className="hero-illustration orbital-heart"
-        viewBox="0 0 560 440"
-        role="button"
-        tabIndex={0}
-        aria-label={inlineCopy(locale, "दिल को हल्की धड़कन दें", "Give the heart a gentle pulse")}
-        aria-describedby="joy-description"
-        onClick={reactToHeart}
-        onKeyDown={handleKeyDown}
-        onPointerMove={respondToPointer}
-        onPointerLeave={(event) => {
-          event.currentTarget.style.setProperty("--reflection-x", "0px");
-          event.currentTarget.style.setProperty("--reflection-y", "0px");
-        }}
-      >
+      <div className="hero-art-visual">
+        <div className="heart-mobile-glow" aria-hidden="true" />
+        <svg
+          className="hero-illustration orbital-heart"
+          viewBox="0 0 560 440"
+          role="button"
+          tabIndex={0}
+          aria-label={inlineCopy(locale, "दिल को हल्की धड़कन दें", "Give the heart a gentle pulse")}
+          aria-describedby="joy-description"
+          onClick={reactToHeart}
+          onKeyDown={handleKeyDown}
+          onPointerMove={respondToPointer}
+          onPointerLeave={(event) => {
+            event.currentTarget.style.setProperty("--reflection-x", "0px");
+            event.currentTarget.style.setProperty("--reflection-y", "0px");
+          }}
+        >
         <title id="joy-title">{inlineCopy(locale, "देने की खुशी", "The joy of giving")}</title>
         <desc id="joy-description">{inlineCopy(locale, "एक धड़कता हुआ दिल और उसके चारों ओर घूमते कण", "A softly beating heart with glowing particles moving around circular paths")}</desc>
         <defs>
@@ -124,9 +129,9 @@ export function AnimatedHeart({ locale }: { locale: Locale }) {
           <filter id="hero-heart-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="26" /></filter>
           <filter id="hero-heart-soft-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" /></filter>
         </defs>
-        <OrbitRing className="orbit-clockwise" radius={198} duration="44s" />
-        <OrbitRing className="orbit-counterclockwise" radius={164} duration="33s" />
-        <OrbitRing className="orbit-third" radius={130} duration="62s" />
+        <OrbitRing className="orbit-clockwise" radius={218} duration="52s" />
+        <OrbitRing className="orbit-counterclockwise" radius={190} duration="38s" />
+        <OrbitRing className="orbit-third" radius={164} duration="64s" />
         <ellipse className="heart-ripple" cx="310" cy="215" rx="118" ry="130" />
         <FloatingParticle className="particle-float-a" cx={95} cy={110} radius={3} />
         <FloatingParticle className="particle-float-b" cx={420} cy={132} radius={2.5} />
@@ -139,8 +144,9 @@ export function AnimatedHeart({ locale }: { locale: Locale }) {
         </g>
         <g className="heart-stable-core">
           <g transform="translate(160 85) scale(1.5)">
-            <path key={pulse} className="hero-heart" d="M100 170 C20 110 0 70 0 48 C0 20 22 2 50 2 C72 2 90 14 100 30 C110 14 128 2 150 2 C178 2 200 20 200 48 C200 70 180 110 100 170 Z" fill="url(#hero-heart-fill)" />
+            <path id="hero-heart-shape" key={pulse} className="hero-heart" d="M100 170 C20 110 0 70 0 48 C0 20 22 2 50 2 C72 2 90 14 100 30 C110 14 128 2 150 2 C178 2 200 20 200 48 C200 70 180 110 100 170 Z" fill="url(#hero-heart-fill)" />
             <path d="M100 170 C20 110 0 70 0 48 C0 20 22 2 50 2 C72 2 90 14 100 30 C110 14 128 2 150 2 C178 2 200 20 200 48 C200 70 180 110 100 170 Z" fill="none" stroke="var(--heart-edge)" strokeWidth="2" />
+            <use href="#hero-heart-shape" className="hero-heart-focus-outline" />
             <ellipse className="hero-heart-highlight" cx="100" cy="138" rx="46" ry="20" fill="var(--heart-belly)" filter="url(#hero-heart-soft-blur)" />
             <ellipse className="hero-heart-highlight" cx="50" cy="40" rx="28" ry="14" fill="var(--heart-reflection)" filter="url(#hero-heart-soft-blur)" transform="rotate(-30 50 40)" />
             <path className="hero-heart-glint" d="M22 46 C24 30 38 20 56 18" />
@@ -157,7 +163,8 @@ export function AnimatedHeart({ locale }: { locale: Locale }) {
           <circle className="celebration-particle burst-e" cx="272" cy="328" r="2.5" />
           <circle className="celebration-particle burst-f" cx="350" cy="327" r="2" />
         </g>
-      </svg>
+        </svg>
+      </div>
       <div className="hero-floating-note note-top"><Sparkles size={16} aria-hidden="true" /><span>{inlineCopy(locale, "छोटी खुशी", "A small act, freely chosen")}</span></div>
       <div className="hero-floating-note note-bottom"><Heart size={16} aria-hidden="true" /><span>{inlineCopy(locale, "पूरी तरह वैकल्पिक", "Always optional")}</span></div>
       <a className="scroll-cue" href="#why"><span>{inlineCopy(locale, "और जानें", "A little more")}</span><span aria-hidden="true">↓</span></a>

@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Heart, Menu } from "lucide-react";
+import { Heart, Menu, X } from "lucide-react";
 import { LanguageSwitch } from "./language-switch";
 import type { Locale } from "@/lib/i18n";
 
 export function MobileNav({ locale, nav, giveLabel }: { locale: Locale; nav: React.ReactNode; giveLabel: string }) {
   const ref = useRef<HTMLDetailsElement>(null);
   const openLabel = locale !== "en" ? "नेविगेशन खोलें" : "Open navigation";
+  const closeLabel = locale !== "en" ? "नेविगेशन बंद करें" : "Close navigation";
   const navLabel = locale !== "en" ? "मोबाइल नेविगेशन" : "Mobile navigation";
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const details = ref.current;
@@ -35,11 +37,11 @@ export function MobileNav({ locale, nav, giveLabel }: { locale: Locale; nav: Rea
   }, []);
 
   return (
-    <details className="mobile-nav" ref={ref}>
-      <summary aria-label={openLabel}>
-        <Menu size={21} />
+    <details className="mobile-nav" ref={ref} onToggle={(event) => setIsOpen(event.currentTarget.open)}>
+      <summary aria-label={isOpen ? closeLabel : openLabel} aria-expanded={isOpen} aria-controls="mobile-site-nav">
+        {isOpen ? <X size={21} /> : <Menu size={21} />}
       </summary>
-      <nav aria-label={navLabel}>
+      <nav id="mobile-site-nav" aria-label={navLabel}>
         {nav}
         <LanguageSwitch locale={locale} />
         <Link href={`/${locale}/contribute`} className="button premium-cta"><Heart size={18} aria-hidden="true" />{giveLabel}</Link>
